@@ -5,6 +5,7 @@
 package com.ltd.quizapp;
 
 import com.ltd.pojo.Category;
+import com.ltd.services.CategoryServices;
 import com.ltd.utils.JdbcConnector;
 import java.net.URL;
 import java.sql.Connection;
@@ -28,32 +29,17 @@ import javafx.scene.control.ComboBox;
 public class QuestionController implements Initializable {
     @FXML private ComboBox<Category> cbCates;
     
+    private final static CategoryServices cateServices = new CategoryServices();
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            
-            // B2: Thiết lập kết nối
-            Connection conn = JdbcConnector.getInstance().connect();
-            //B3: Xử lý truy vấn
-            Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT * from category");
-            
-            List<Category> cates = new ArrayList<>();
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                
-                Category c = new Category(id, name);
-                cates.add(c);
-            }
-            //B4: Đóng kết nối
-            conn.close();
-            
-            this.cbCates.setItems(FXCollections.observableList(cates));
-        } catch (ClassNotFoundException | SQLException ex) {
+         
+            this.cbCates.setItems(FXCollections.observableList(cateServices.getCates()));
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }    
