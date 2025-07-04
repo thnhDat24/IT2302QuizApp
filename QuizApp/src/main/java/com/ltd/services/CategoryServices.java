@@ -22,7 +22,7 @@ public class CategoryServices {
     public List<Category> getCates() throws SQLException {
         Connection conn = JdbcConnector.getInstance().connect();
         Statement stm = conn.createStatement();
-        ResultSet rs = stm.executeQuery("SELECT * from category");
+        ResultSet rs = stm.executeQuery("SELECT * FROM category");
 
         List<Category> cates = new ArrayList<>();
         while (rs.next()) {
@@ -32,7 +32,6 @@ public class CategoryServices {
             Category c = new Category(id, name);
             cates.add(c);
         }
-        conn.close();
         return cates;
     }
 }

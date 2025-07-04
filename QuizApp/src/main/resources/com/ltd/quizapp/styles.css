@@ -29,3 +29,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to ed
     -fx-font-weight: bold
 }
 
+.Input {
+    -fx-pref-width: 300;
+    -fx-padding: 8;
+}

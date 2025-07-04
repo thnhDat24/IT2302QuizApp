@@ -42,7 +42,9 @@ public class Question {
         private List<Choice> choices = new ArrayList<>();
         private String img;
         
-        public Builder(String content, Category c, Level l){
+        public Builder(String content, Category c, Level l) throws Exception{
+            if(content.isEmpty() || c == null || l == null)
+                throw new Exception("Invalid data!");
             this.content = content;
             this.category = c;
             this.level = l;

@@ -23,7 +23,7 @@ public class LevelServices {
     public List<Level> getLevels() throws SQLException {
         Connection conn = JdbcConnector.getInstance().connect();
         Statement stm = conn.createStatement();
-        ResultSet rs = stm.executeQuery("SELECT * from level");
+        ResultSet rs = stm.executeQuery("SELECT * FROM level");
 
         List<Level> levels = new ArrayList<>();
         while (rs.next()) {
@@ -31,10 +31,9 @@ public class LevelServices {
             String name = rs.getString("name");
             String note = rs.getString("note");
             
-            Level l = new Level(id, name, note);
-            levels.add(l);
+            Level c = new Level(id, name, note);
+            levels.add(c);
         }
-        conn.close();
         return levels;
     }
 }
