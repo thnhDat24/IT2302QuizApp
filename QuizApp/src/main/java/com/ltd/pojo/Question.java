@@ -50,6 +50,11 @@ public class Question {
             this.level = l;
         }
         
+        public Builder(int id, String content) {  
+            this.id = id;
+            this.content = content;
+        }
+        
         public Builder addHint(String h){
             this.hint = h;
             return this;

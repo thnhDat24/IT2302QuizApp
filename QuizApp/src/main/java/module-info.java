@@ -7,4 +7,5 @@ module com.ltd.quizapp {
 
     opens com.ltd.quizapp to javafx.fxml;
     exports com.ltd.quizapp;
+    exports com.ltd.pojo;
 }
