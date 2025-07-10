@@ -21,14 +21,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -49,7 +54,7 @@ public class QuestionController implements Initializable {
     @FXML private ComboBox<Level> cbLevels;
     @FXML private TableView<Question> tbQuestions;
     @FXML private VBox vboxChoices;
-    
+    @FXML private TextField txtSearch;
     @FXML private ToggleGroup toggleChoice;
     
     private final static CategoryServices cateServices = new CategoryServices();
@@ -66,10 +71,18 @@ public class QuestionController implements Initializable {
             this.cbLevels.setItems(FXCollections.observableList(levelServices.getLevels()));
             
             this.loadColumns();
-            this.tbQuestions.setItems(FXCollections.observableList(questionServices.getQuestions()));
+            this.loadQuestion(questionServices.getQuestions());
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        
+        this.txtSearch.textProperty().addListener((e) -> {
+            try {
+                this.loadQuestion(questionServices.getQuestions(this.txtSearch.getText()));
+            } catch (SQLException ex) {
+                Logger.getLogger(QuestionController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+        });
     }
 
     public void addChoice(ActionEvent event) {
@@ -104,6 +117,9 @@ public class QuestionController implements Initializable {
             
             questionServices.addQuestion(b.build());
             MyAlert.getInstance().showMsg("Thêm câu hỏi thành công!");
+            
+            //Bo sung
+            this.tbQuestions.getItems().add(0, b.build());
         }
         catch (SQLException ex) {
             MyAlert.getInstance().showMsg("Thêm câu hỏi thất bại");
@@ -122,7 +138,37 @@ public class QuestionController implements Initializable {
         colContent.setCellValueFactory(new PropertyValueFactory("content"));
         colContent.setPrefWidth(250);
         
-        this.tbQuestions.getColumns().addAll(colId, colContent);
+        TableColumn colAction = new TableColumn();
+        colAction.setCellFactory((e) -> {
+            TableCell cell = new TableCell();
+            
+            Button btn = new Button("Xóa");
+            btn.setOnAction((event) -> {
+                Optional<ButtonType> t = MyAlert.getInstance().showMsg("Xóa câu hỏi thì các lựa chọn cũng bị xóa theo. Bạn chắc chắn không?",
+                        Alert.AlertType.CONFIRMATION);
+                if(t.isPresent() && t.get().equals(ButtonType.OK)) {
+                    Question q = (Question) cell.getTableRow().getItem();
+                    try {
+                        questionServices.deleteQuestion(q.getId());
+                        
+                        this.tbQuestions.getItems().remove(q);
+                        MyAlert.getInstance().showMsg("Xóa thành công");
+                    } catch (SQLException ex) {
+                        MyAlert.getInstance().showMsg("Xóa thất bại", Alert.AlertType.WARNING);
+                    }
+                }
+            });
+            
+            cell.setGraphic(btn);           
+            
+            return cell;
+        });
+        
+        this.tbQuestions.getColumns().addAll(colId, colContent, colAction);
+    }
+    
+    private void loadQuestion(List<Question> questions) {
+        this.tbQuestions.setItems(FXCollections.observableList(questions));
     }
     
 }

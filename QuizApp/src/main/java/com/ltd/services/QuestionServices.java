@@ -5,6 +5,7 @@
 package com.ltd.services;
 
 import com.ltd.pojo.Category;
+import com.ltd.pojo.Choice;
 import com.ltd.pojo.Question;
 import com.ltd.utils.JdbcConnector;
 import java.sql.CallableStatement;
@@ -73,4 +74,66 @@ public class QuestionServices {
         }
         return questions;
     }
+    
+    public List<Question> getQuestions(String kw) throws SQLException{
+        Connection conn = JdbcConnector.getInstance().connect();
+        PreparedStatement stm = conn.prepareCall("SELECT * FROM question WHERE content like concat('%', ?, '%')");
+        stm.setString(1, kw);
+        ResultSet rs = stm.executeQuery();
+
+        List<Question> questions = new ArrayList<>();
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String content = rs.getString("content");
+            Question q = new Question.Builder(id, content).build();
+            
+            questions.add(q);
+        }
+        return questions;
+    }
+    
+    public List<Question> getQuestions(int num) throws SQLException{
+        Connection conn = JdbcConnector.getInstance().connect();
+        PreparedStatement stm = conn.prepareCall("SELECT * FROM question ORDER BY rand() LIMIT ?");
+        stm.setInt(1, num);
+        ResultSet rs = stm.executeQuery();
+
+        List<Question> questions = new ArrayList<>();
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String content = rs.getString("content");
+            Question q = new Question.Builder(id, content)
+                    .addAllChoice(this.getChoicesByQuestionId(id)).build();
+            
+            questions.add(q);
+        }
+        return questions;
+    }
+    
+    public List<Choice> getChoicesByQuestionId(int questionId) throws SQLException{
+        Connection conn = JdbcConnector.getInstance().connect();
+        PreparedStatement stm = conn.prepareCall("SELECT * FROM choice WHERE question_id=?");
+        stm.setInt(1, questionId);
+        ResultSet rs = stm.executeQuery();
+
+        List<Choice> choices = new ArrayList<>();
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String content = rs.getString("content");
+            boolean correct = rs.getBoolean("is_correct");
+            Choice c = new Choice(id, content, correct);
+            
+            choices.add(c);
+        }
+        return choices;
+    }
+    
+    public boolean deleteQuestion(int questionId) throws SQLException{
+        Connection conn = JdbcConnector.getInstance().connect();
+        PreparedStatement stm = conn.prepareCall("DELETE FROM question WHERE id=?");
+        stm.setInt(1, questionId);
+        
+        return stm.executeUpdate() > 0;
+    }
+        
 }
