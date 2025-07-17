@@ -1,4 +1,4 @@
-/*
+ /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
  */
@@ -11,6 +11,7 @@ import com.ltd.pojo.Question;
 import com.ltd.services.questions.BaseQuestionServices;
 import com.ltd.services.questions.CategoryQuestionServicesDecorator;
 import com.ltd.services.questions.KeywordQuestionServicesDecorator;
+import com.ltd.services.questions.LevelQuestionServicesDecorator;
 import com.ltd.utils.Configs;
 import com.ltd.utils.MyAlert;
 import java.net.URL;
@@ -61,11 +62,11 @@ public class QuestionController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {        
-            this.cbCates.setItems(FXCollections.observableList(Configs.cateServices.getCates()));
-            this.cbLevels.setItems(FXCollections.observableList(Configs.levelServices.getLevels()));
+            this.cbCates.setItems(FXCollections.observableList(Configs.cateServices.list()));
+            this.cbLevels.setItems(FXCollections.observableList(Configs.levelServices.list()));
             
-            this.cbSearchCates.setItems(FXCollections.observableList(Configs.cateServices.getCates()));
-            this.cbSearchLevels.setItems(FXCollections.observableList(Configs.levelServices.getLevels()));
+            this.cbSearchCates.setItems(FXCollections.observableList(Configs.cateServices.list()));
+            this.cbSearchLevels.setItems(FXCollections.observableList(Configs.levelServices.list()));
                        
             this.loadColumns();
             this.loadQuestion(Configs.questionServices.list());
@@ -86,6 +87,16 @@ public class QuestionController implements Initializable {
             try {
                 BaseQuestionServices s = new CategoryQuestionServicesDecorator(Configs.questionServices, 
                         this.cbSearchCates.getSelectionModel().getSelectedItem());
+                this.loadQuestion(s.list());
+            } catch (SQLException ex) {
+                Logger.getLogger(QuestionController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+        });
+        
+        this.cbSearchLevels.getSelectionModel().selectedItemProperty().addListener(e -> {
+            try {
+                BaseQuestionServices s = new LevelQuestionServicesDecorator(Configs.questionServices, 
+                        this.cbSearchLevels.getSelectionModel().getSelectedItem());
                 this.loadQuestion(s.list());
             } catch (SQLException ex) {
                 Logger.getLogger(QuestionController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);

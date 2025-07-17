@@ -4,18 +4,23 @@
  */
 package com.ltd.quizapp;
 
+import com.ltd.pojo.Category;
+import com.ltd.pojo.Level;
 import com.ltd.pojo.Question;
-import com.ltd.services.questions.QuestionServices;
+import com.ltd.services.questions.BaseQuestionServices;
+import com.ltd.services.questions.CategoryQuestionServicesDecorator;
+import com.ltd.services.questions.LevelQuestionServicesDecorator;
+import com.ltd.services.questions.LimitQuestionServicesDecorator;
 import com.ltd.utils.Configs;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
@@ -32,6 +37,8 @@ public class PracticeController implements Initializable {
     @FXML private VBox vboxChoices;
     @FXML private Text txtContent;
     @FXML private Text txtResult;
+    @FXML private ComboBox<Category> cbSearchCates;
+    @FXML private ComboBox<com.ltd.pojo.Level> cbSearchLevels;
     private List<Question> questions;
     private int currentQuestion = 0;
     
@@ -40,16 +47,33 @@ public class PracticeController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        try {                              
+            this.cbSearchCates.setItems(FXCollections.observableList(Configs.cateServices.list()));
+            this.cbSearchLevels.setItems(FXCollections.observableList(Configs.levelServices.list()));
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }    
     
     public void handleStart(ActionEvent event) {
-//        try {
-//            this.questions = Configs.questionServices.getQuestions(Integer.parseInt(this.txtNum.getText()));
-//            loadQuestion();
-//        } catch (SQLException ex) {
-//            Logger.getLogger(PracticeController.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        try {
+            BaseQuestionServices s = Configs.questionServices;
+            
+            Category c = this.cbSearchCates.getSelectionModel().getSelectedItem();
+            if (c != null)
+                s = new CategoryQuestionServicesDecorator(s, c);
+            
+            Level l = this.cbSearchLevels.getSelectionModel().getSelectedItem();
+            if (l != null)
+                s = new LevelQuestionServicesDecorator(s, l);
+                
+            s = new LimitQuestionServicesDecorator(s,Integer.parseInt(this.txtNum.getText()));
+            this.questions = s.list();
+            loadQuestion();
+        } catch (SQLException ex) {
+            
+        }
     }
     
     public void handleNext(ActionEvent event) {

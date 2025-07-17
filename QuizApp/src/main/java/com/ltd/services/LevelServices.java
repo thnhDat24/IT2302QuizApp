@@ -4,10 +4,10 @@
  */
 package com.ltd.services;
 
-import com.ltd.pojo.Category;
 import com.ltd.pojo.Level;
 import com.ltd.utils.JdbcConnector;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,13 +18,14 @@ import java.util.List;
  *
  * @author ASUS-PC
  */
-public class LevelServices {
+public class LevelServices extends BaseServices<Level> {
+    @Override
+    public PreparedStatement getStatement(Connection conn) throws SQLException {
+        return conn.prepareCall("SELECT * FROM level");
+    }
 
-    public List<Level> getLevels() throws SQLException {
-        Connection conn = JdbcConnector.getInstance().connect();
-        Statement stm = conn.createStatement();
-        ResultSet rs = stm.executeQuery("SELECT * FROM level");
-
+    @Override
+    public List<Level> getResults(ResultSet rs) throws SQLException {
         List<Level> levels = new ArrayList<>();
         while (rs.next()) {
             int id = rs.getInt("id");
