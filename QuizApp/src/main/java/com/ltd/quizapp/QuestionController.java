@@ -8,6 +8,7 @@ import com.ltd.pojo.Category;
 import com.ltd.pojo.Choice;
 import com.ltd.pojo.Level;
 import com.ltd.pojo.Question;
+import com.ltd.services.FlyweightFactory;
 import com.ltd.services.questions.BaseQuestionServices;
 import com.ltd.services.questions.CategoryQuestionServicesDecorator;
 import com.ltd.services.questions.KeywordQuestionServicesDecorator;
@@ -61,12 +62,12 @@ public class QuestionController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        try {        
-            this.cbCates.setItems(FXCollections.observableList(Configs.cateServices.list()));
-            this.cbLevels.setItems(FXCollections.observableList(Configs.levelServices.list()));
+        try {    
+            this.cbCates.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.cateServices, "categories")));
+            this.cbLevels.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.levelServices, "levels")));
             
-            this.cbSearchCates.setItems(FXCollections.observableList(Configs.cateServices.list()));
-            this.cbSearchLevels.setItems(FXCollections.observableList(Configs.levelServices.list()));
+            this.cbSearchCates.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.cateServices, "categories")));
+            this.cbSearchLevels.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.levelServices, "levels")));
                        
             this.loadColumns();
             this.loadQuestion(Configs.questionServices.list());
